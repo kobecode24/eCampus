@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org</groupId>
-    <artifactId>docTech</artifactId>
+    <artifactId>eCampus</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>docTech</name>
     <description>docTech</description>
