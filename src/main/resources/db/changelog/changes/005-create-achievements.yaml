@@ -1,0 +1,91 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-achievements-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: achievements
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: points_reward
+                  type: int
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: required_progress
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: image_url
+                  type: varchar(255)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 005-create-user-achievements-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: user_achievements
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_achievements_user
+                    references: users(id)
+              - column:
+                  name: achievement_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_achievements_achievement
+                    references: achievements(id)
+              - column:
+                  name: current_progress
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: boolean
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: timestamp

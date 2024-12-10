@@ -1,0 +1,11 @@
+package org.doctech.points.model;
+
+public enum TransactionType {
+    COURSE_ENROLLMENT,
+    BADGE_PURCHASE,
+    BLOG_CREATION,
+    COURSE_COMPLETION_REWARD,
+    ACHIEVEMENT_REWARD,
+    DOCUMENTATION_CONTRIBUTION,
+    REFUND
+}

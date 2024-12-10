@@ -1,0 +1,64 @@
+  databaseChangeLog:
+    - changeSet:
+        id: 004-insert-initial-roles
+        author: doctech
+        changes:
+          - insert:
+              tableName: roles
+              columns:
+                - column:
+                    name: id
+                    valueComputed: gen_random_uuid()
+                - column:
+                    name: name
+                    value: ADMIN
+          - insert:
+              tableName: roles
+              columns:
+                - column:
+                    name: id
+                    valueComputed: gen_random_uuid()
+                - column:
+                    name: name
+                    value: INSTRUCTOR
+          - insert:
+              tableName: roles
+              columns:
+                - column:
+                    name: id
+                    valueComputed: gen_random_uuid()
+                - column:
+                    name: name
+                    value: STUDENT
+          - insert:
+              tableName: roles
+              columns:
+                - column:
+                    name: id
+                    valueComputed: gen_random_uuid()
+                - column:
+                    name: name
+                    value: MODERATOR
+
+    - changeSet:
+        id: 004-insert-admin-user
+        author: doctech
+        changes:
+          - insert:
+              tableName: users
+              columns:
+                - column:
+                    name: id
+                    valueComputed: gen_random_uuid()
+                - column:
+                    name: username
+                    value: admin
+                - column:
+                    name: email
+                    value: admin@doctech.com
+                - column:
+                    name: password_hash
+                    value: $2a$10$iLEz3tkVKeOCwuagcqfX8eNZ4.wqBD5c1gdN3IgPzqeMk9qXakjYe  # password: admin123
+                - column:
+                    name: created_at
+                    valueComputed: CURRENT_TIMESTAMP

@@ -1,0 +1,97 @@
+# 008-create-course-tables.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-courses-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: courses
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: points_to_earn
+                  type: int
+              - column:
+                  name: points_cost
+                  type: int
+              - column:
+                  name: instructor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_courses_instructor
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 008-create-course-progress-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: course_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_course_progress_user
+                    references: users(id)
+              - column:
+                  name: course_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_course_progress_course
+                    references: courses(id)
+              - column:
+                  name: completion_percentage
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: boolean
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: timestamp
+              - column:
+                  name: last_accessed_at
+                  type: timestamp

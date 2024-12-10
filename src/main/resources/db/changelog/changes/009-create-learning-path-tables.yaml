@@ -1,0 +1,136 @@
+# 009-create-learning-path-tables.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-learning-paths-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: learning_paths
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: total_points
+                  type: int
+              - column:
+                  name: difficulty
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 009-create-learning-path-courses-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: learning_path_courses
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: learning_path_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_courses_path
+                    references: learning_paths(id)
+              - column:
+                  name: course_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_courses_course
+                    references: courses(id)
+              - column:
+                  name: sequence_order
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 009-create-learning-path-progress-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: learning_path_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_progress_user
+                    references: users(id)
+              - column:
+                  name: learning_path_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_progress_path
+                    references: learning_paths(id)
+              - column:
+                  name: completion_percentage
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_courses_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_courses_count
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: boolean
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: timestamp
+              - column:
+                  name: last_accessed_at
+                  type: timestamp
