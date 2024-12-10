@@ -1,0 +1,111 @@
+# 010-create-user-progress-tables.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 010-create-user-progress-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: user_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_progress_user
+                    references: users(id)
+              - column:
+                  name: total_points
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_level
+                  type: int
+                  defaultValue: "1"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_courses_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_learning_paths_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: earned_badges_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+
+  - changeSet:
+      id: 010-create-point-transactions-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: point_transactions
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_point_transactions_user
+                    references: users(id)
+              - column:
+                  name: related_item_id
+                  type: uuid
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: points
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: transaction_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: successful
+                  type: boolean
+                  defaultValue: "true"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rollback_transaction_id
+                  type: uuid

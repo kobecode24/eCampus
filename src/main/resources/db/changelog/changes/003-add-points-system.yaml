@@ -1,1 +1,68 @@
 databaseChangeLog:
+  - changeSet:
+      id: 003-create-badges-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: badges
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: image_url
+                  type: varchar(255)
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: points_required
+                  type: int
+              - column:
+                  name: points_cost
+                  type: int
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 003-create-user-badges-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: user_badges
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_badges_user
+                    references: users(id)
+              - column:
+                  name: badge_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_badges_badge
+                    references: badges(id)
+        - addPrimaryKey:
+            tableName: user_badges
+            columnNames: user_id, badge_id
+            constraintName: pk_user_badges

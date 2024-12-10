@@ -1,0 +1,548 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-remaining-tables
+      author: doctech
+      changes:
+        # Blog Tables
+        - createTable:
+            tableName: blogs
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_author
+                    references: users(id)
+              - column:
+                  name: likes
+                  type: int
+                  defaultValue: "0"
+              - column:
+                  name: points_cost
+                  type: int
+              - column:
+                  name: published
+                  type: boolean
+                  defaultValue: "false"
+              - column:
+                  name: published_at
+                  type: timestamp
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+              - column:
+                  name: version
+                  type: bigint
+
+        - createTable:
+            tableName: blog_comments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: blog_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_comments_blog
+                    references: blogs(id)
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_comments_author
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+
+        - createTable:
+            tableName: blog_tags
+            columns:
+              - column:
+                  name: blog_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_tags_blog
+                    references: blogs(id)
+              - column:
+                  name: tag
+                  type: varchar(100)
+
+        - createTable:
+            tableName: blog_likes
+            columns:
+              - column:
+                  name: blog_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_likes_blog
+                    references: blogs(id)
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_likes_user
+                    references: users(id)
+
+        # Documentation Tables
+        - createTable:
+            tableName: documentation
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: views
+                  type: int
+                  defaultValue: "0"
+              - column:
+                  name: technology
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_author
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+              - column:
+                  name: version
+                  type: bigint
+
+        - createTable:
+            tableName: documentation_tags
+            columns:
+              - column:
+                  name: documentation_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_tags_doc
+                    references: documentation(id)
+              - column:
+                  name: tag
+                  type: varchar(100)
+
+        - createTable:
+            tableName: documentation_comments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: documentation_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_comments_doc
+                    references: documentation(id)
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_comments_author
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+
+        # Course Tables
+        - createTable:
+            tableName: courses
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: points_to_earn
+                  type: int
+              - column:
+                  name: points_cost
+                  type: int
+              - column:
+                  name: instructor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_courses_instructor
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: course_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_course_progress_user
+                    references: users(id)
+              - column:
+                  name: course_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_course_progress_course
+                    references: courses(id)
+              - column:
+                  name: completion_percentage
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: boolean
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: timestamp
+              - column:
+                  name: last_accessed_at
+                  type: timestamp
+
+        # Learning Path Tables
+        - createTable:
+            tableName: learning_paths
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: total_points
+                  type: int
+              - column:
+                  name: difficulty
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: learning_path_courses
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: learning_path_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_courses_path
+                    references: learning_paths(id)
+              - column:
+                  name: course_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_courses_course
+                    references: courses(id)
+              - column:
+                  name: sequence_order
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: learning_path_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_progress_user
+                    references: users(id)
+              - column:
+                  name: learning_path_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_learning_path_progress_path
+                    references: learning_paths(id)
+              - column:
+                  name: completion_percentage
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_courses_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_courses_count
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: boolean
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: timestamp
+              - column:
+                  name: last_accessed_at
+                  type: timestamp
+
+        # User Progress Tables
+        - createTable:
+            tableName: user_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_progress_user
+                    references: users(id)
+              - column:
+                  name: total_points
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_level
+                  type: int
+                  defaultValue: "1"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_courses_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_learning_paths_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: earned_badges_count
+                  type: int
+                  defaultValue: "0"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+
+        # Point Transaction Table
+        - createTable:
+            tableName: point_transactions
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_point_transactions_user
+                    references: users(id)
+              - column:
+                  name: related_item_id
+                  type: uuid
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: points
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: transaction_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: successful
+                  type: boolean
+                  defaultValue: "true"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rollback_transaction_id
+                  type: uuid
+
+        # Add primary keys for junction tables
+        - addPrimaryKey:
+            tableName: blog_likes
+            columnNames: blog_id, user_id
+            constraintName: pk_blog_likes

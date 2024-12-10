@@ -1,0 +1,60 @@
+# 007-create-documentation-tables.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-documentation-tags-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: documentation_tags
+            columns:
+              - column:
+                  name: documentation_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_tags_doc
+                    references: documentation(id)
+              - column:
+                  name: tag
+                  type: varchar(100)
+
+  - changeSet:
+      id: 007-create-documentation-comments-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: documentation_comments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: documentation_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_comments_doc
+                    references: documentation(id)
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_comments_author
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp

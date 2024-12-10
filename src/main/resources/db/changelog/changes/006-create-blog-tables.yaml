@@ -1,0 +1,142 @@
+# 006-create-blog-tables.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-blogs-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: blogs
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_author
+                    references: users(id)
+              - column:
+                  name: likes
+                  type: int
+                  defaultValue: "0"
+              - column:
+                  name: points_cost
+                  type: int
+              - column:
+                  name: published
+                  type: boolean
+                  defaultValue: "false"
+              - column:
+                  name: published_at
+                  type: timestamp
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+              - column:
+                  name: version
+                  type: bigint
+
+  - changeSet:
+      id: 006-create-blog-comments-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: blog_comments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: blog_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_comments_blog
+                    references: blogs(id)
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_comments_author
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated_at
+                  type: timestamp
+
+  - changeSet:
+      id: 006-create-blog-tags-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: blog_tags
+            columns:
+              - column:
+                  name: blog_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_tags_blog
+                    references: blogs(id)
+              - column:
+                  name: tag
+                  type: varchar(100)
+
+  - changeSet:
+      id: 006-create-blog-likes-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: blog_likes
+            columns:
+              - column:
+                  name: blog_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_likes_blog
+                    references: blogs(id)
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_blog_likes_user
+                    references: users(id)
+        - addPrimaryKey:
+            tableName: blog_likes
+            columnNames: blog_id, user_id
+            constraintName: pk_blog_likes

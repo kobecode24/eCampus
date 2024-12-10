@@ -1,3 +1,23 @@
 databaseChangeLog:
   - include:
-      file: changes/001-initial-schema.yaml
+      file: db/changelog/changes/001-initial-schema.yaml
+  - include:
+      file: db/changelog/changes/002-add-user-roles.yaml
+  - include:
+      file: db/changelog/changes/003-add-points-system.yaml
+  - include:
+      file: db/changelog/changes/004-initial-data.yaml
+  - include:
+      file: db/changelog/changes/005-create-achievements.yaml
+  - include:
+      file: db/changelog/changes/006-create-blog-tables.yaml
+  - include:
+      file: db/changelog/changes/007-create-documentation-tables.yaml
+  - include:
+      file: db/changelog/changes/008-create-course-tables.yaml
+  - include:
+      file: db/changelog/changes/009-create-learning-path-tables.yaml
+  - include:
+      file: db/changelog/changes/010-create-user-progress-tables.yaml
+  - include:
+      file: db/changelog/changes/011-add-missing-columns.yaml
