@@ -2,7 +2,6 @@ package org.doctech.blog.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,10 +23,7 @@ public class BlogCommentDTO {
     @Size(min = 1, max = 1000, message = "Comment content must be between 1 and 1000 characters")
     private String content;
 
-    @NotNull(message = "Blog ID is required")
     private UUID blogId;
-
-    @NotNull(message = "Author ID is required")
     private UUID authorId;
 
     private String authorUsername;
