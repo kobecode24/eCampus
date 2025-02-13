@@ -1,0 +1,36 @@
+# src/main/resources/db/changelog/changes/013-add-audit-fields-to-badges.yaml
+
+databaseChangeLog:
+  - changeSet:
+      id: 013-add-audit-fields-to-badges
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: badges
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_badge_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_badge_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+        - dropColumn:
+            tableName: badges
+            columnName: created_at
+        - addColumn:
+            tableName: badges
+            columns:
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false

@@ -1,0 +1,30 @@
+# src/main/resources/db/changelog/changes/014-add-audit-fields-to-course-progress.yaml
+
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-audit-fields-to-course-progress
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: course_progress
+            columns:
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_course_progress_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_course_progress_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp

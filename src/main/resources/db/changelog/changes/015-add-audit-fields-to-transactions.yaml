@@ -1,0 +1,15 @@
+# src/main/resources/db/changelog/changes/015-add-audit-fields-to-transactions.yaml
+
+databaseChangeLog:
+  - changeSet:
+      id: 015-add-created-at-to-transactions
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: point_transactions
+            columns:
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false

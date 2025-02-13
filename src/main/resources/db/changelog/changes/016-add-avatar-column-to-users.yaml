@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 016-add-avatar-column-to-users
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: avatar
+                  type: VARCHAR(255)
+                  remarks: "URL of the user's avatar"
+                  defaultValue: ''

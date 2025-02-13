@@ -1,0 +1,157 @@
+# 012-add-auditing-fields.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 012-add-audit-fields-to-blog
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: blogs
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_blog_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_blog_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+
+  - changeSet:
+      id: 012-add-audit-fields-to-documentation
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: documentation
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_documentation_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_documentation_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+
+  - changeSet:
+      id: 012-add-audit-fields-to-courses
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: courses
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_course_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_course_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+
+  - changeSet:
+      id: 012-add-audit-fields-to-learning-paths
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: learning_paths
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_learning_path_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_learning_path_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+
+  - changeSet:
+      id: 012-add-audit-fields-to-comments
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: blog_comments
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_blog_comment_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_blog_comment_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+        - addColumn:
+            tableName: documentation_comments
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_doc_comment_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_doc_comment_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+
+  - changeSet:
+      id: 012-add-audit-fields-to-transactions
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: point_transactions
+            columns:
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_transaction_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_transaction_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp
