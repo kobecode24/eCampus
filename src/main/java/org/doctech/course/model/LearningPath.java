@@ -2,6 +2,7 @@ package org.doctech.course.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.doctech.common.model.Auditable;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class LearningPath {
+public class LearningPath extends Auditable {
 
     @Id
     @GeneratedValue
