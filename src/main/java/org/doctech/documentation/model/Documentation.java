@@ -2,6 +2,7 @@ package org.doctech.documentation.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.doctech.common.model.Auditable;
 import org.doctech.user.model.User;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -16,7 +17,7 @@ import java.util.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class Documentation {
+public class Documentation extends Auditable {
 
     @Id
     @GeneratedValue
@@ -76,7 +77,10 @@ public class Documentation {
     }
 
     public void incrementViews() {
-        this.views++;
+        if (this.views == null) {
+            this.views = 0;
+        }
+        this.views = this.views + 1;
     }
 
     public void addComment(DocumentationComment comment) {
