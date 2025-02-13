@@ -18,4 +18,12 @@ public interface PointTransactionService {
     List<PointTransactionDTO> getUserTransactionsInDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
     Integer calculateUserBalance(UUID userId);
     Integer calculateUserPointsByType(UUID userId, TransactionType type);
+    PointTransactionDTO createTransaction(UUID userId, Integer points,
+                                          TransactionType type, String description);
+    void spendPoints(UUID userId, Integer points,
+                     TransactionType type, String description);
+    void validatePoints(UUID userId, Integer requiredPoints);
+    Integer getUserBalance(UUID userId);
+    Page<PointTransactionDTO> getUserTransactions(UUID userId, Pageable pageable);
+
 }
