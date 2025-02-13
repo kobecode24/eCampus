@@ -19,6 +19,7 @@ public interface UserMapper {
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = "rolesToStrings")
     @Mapping(source = "badges", target = "badgeIds", qualifiedByName = "badgesToIds")
+    @Mapping(source = "badges", target = "badges", qualifiedByName = "badgesToNames")
     UserDTO toDTO(User user);
 
     @Mapping(target = "roles", ignore = true)
@@ -43,6 +44,16 @@ public interface UserMapper {
         }
         return badges.stream()
                 .map(Badge::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Named("badgesToNames")
+    default List<String> badgesToNames(List<Badge> badges) {
+        if (badges == null) {
+            return null;
+        }
+        return badges.stream()
+                .map(Badge::getName)
                 .collect(Collectors.toList());
     }
 }
