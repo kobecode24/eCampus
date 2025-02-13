@@ -28,10 +28,16 @@ public class UserDTO {
     @NotBlank(message = "Username is required")
     private String username;
 
+    private String avatar;
     private Set<String> roles;
     private Integer points;
     private Integer level;
     private List<UUID> badgeIds;
+    private Integer xp;
+    private Integer xpToNextLevel;
+    private List<String> badges;
+    private Integer postsCount;
+    private Integer commentsCount;
     private LocalDateTime createdAt;
     private LocalDateTime lastLogin;
     private boolean enabled;
