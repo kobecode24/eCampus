@@ -225,4 +225,63 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "An unexpected error occurred. Please try again later."
         );
     }
+
+    @ExceptionHandler(BlogNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse handleBlogNotFoundException(BlogNotFoundException ex) {
+        log.error("Blog not found", ex);
+        return new ApiResponse(
+                false,
+                "Blog Not Found",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(DocumentationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse handleDocumentationNotFoundException(DocumentationNotFoundException ex) {
+        log.error("Documentation not found", ex);
+        return new ApiResponse(
+                false,
+                "Documentation Not Found",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(DocumentationCommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse handleDocumentationCommentNotFoundException(DocumentationCommentNotFoundException ex) {
+        log.error("Documentation comment not found", ex);
+        return new ApiResponse(
+                false,
+                "Documentation Comment Not Found",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(BlogCommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse handleBlogCommentNotFoundException(BlogCommentNotFoundException ex) {
+        log.error("Blog comment not found", ex);
+        return new ApiResponse(
+                false,
+                "Blog Comment Not Found",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ApiResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ApiResponse(
+                false,
+                "Illegal Argument",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse handleInvalidCredentials(InvalidCredentialsException ex) {
+        return new ApiResponse(false, "Invalid Credentials", ex.getMessage());
+    }
 }
