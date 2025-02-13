@@ -14,4 +14,5 @@ public interface DocumentationCommentRepository extends JpaRepository<Documentat
     List<DocumentationComment> findByDocumentationId(UUID documentationId);
     Page<DocumentationComment> findByAuthorId(UUID authorId, Pageable pageable);
     void deleteByDocumentationId(UUID documentationId);
+    Page<DocumentationComment> findByDocumentationIdOrderByCreatedAtDesc(UUID documentationId, Pageable pageable);
 }
