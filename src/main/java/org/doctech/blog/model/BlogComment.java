@@ -2,6 +2,7 @@ package org.doctech.blog.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.doctech.common.model.Auditable;
 import org.doctech.user.model.User;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class BlogComment {
+public class BlogComment extends Auditable {
 
     @Id
     @GeneratedValue

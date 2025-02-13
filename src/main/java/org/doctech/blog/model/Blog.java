@@ -2,6 +2,7 @@ package org.doctech.blog.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.doctech.common.model.Auditable;
 import org.doctech.user.model.User;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -16,7 +17,7 @@ import java.util.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class Blog {
+public class Blog extends Auditable {
 
     @Id
     @GeneratedValue
@@ -43,12 +44,14 @@ public class Blog {
     @Builder.Default
     private Set<String> tags = new HashSet<>();
 
+    @Column(nullable = false)
     @Builder.Default
     private Integer likes = 0;
 
     @Column(name = "points_cost")
     private Integer pointsCost;
 
+    @Getter
     @Column(nullable = false)
     @Builder.Default
     private boolean published = false;
@@ -78,10 +81,6 @@ public class Blog {
     @Builder.Default
     @ToString.Exclude
     private Set<User> likedBy = new HashSet<>();
-
-    public boolean isPublished() {
-        return this.published;
-    }
 
     public List<BlogComment> getComments() {
         if (comments == null) {
@@ -117,14 +116,22 @@ public class Blog {
     }
 
     public void addLike(User user) {
+        if (this.likes == null) {
+            this.likes = 0;
+        }
+
         if (likedBy.add(user)) {
-            this.likes++;
+            this.likes = this.likes + 1;
         }
     }
 
     public void removeLike(User user) {
+        if (this.likes == null) {
+            this.likes = 0;
+        }
+
         if (likedBy.remove(user)) {
-            this.likes--;
+            this.likes = Math.max(0, this.likes - 1);
         }
     }
 
