@@ -15,8 +15,6 @@ import java.util.UUID;
 @Repository
 public interface PointTransactionRepository extends JpaRepository<PointTransaction, UUID> {
 
-    List<PointTransaction> findByUserIdOrderByTransactionDateDesc(UUID userId);
-
     Page<PointTransaction> findByUserIdAndType(UUID userId, TransactionType type, Pageable pageable);
 
     @Query("SELECT pt FROM PointTransaction pt WHERE pt.user.id = :userId " +
@@ -31,4 +29,14 @@ public interface PointTransactionRepository extends JpaRepository<PointTransacti
     @Query("SELECT SUM(pt.points) FROM PointTransaction pt WHERE pt.user.id = :userId " +
             "AND pt.type = :type AND pt.successful = true")
     Integer calculateUserPointsByType(UUID userId, TransactionType type);
+
+    @Query("SELECT pt FROM PointTransaction pt " +
+            "WHERE pt.user.id = :userId " +
+            "ORDER BY pt.transactionDate DESC")
+    Page<PointTransaction> findByUserIdOrderByTransactionDateDesc(UUID userId, Pageable pageable);
+
+    @Query("SELECT pt FROM PointTransaction pt " +
+            "WHERE pt.user.id = :userId " +
+            "ORDER BY pt.transactionDate DESC")
+    List<PointTransaction> findByUserIdOrderByTransactionDateDesc(UUID userId);
 }
