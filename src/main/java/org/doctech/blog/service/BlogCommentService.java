@@ -8,9 +8,22 @@ import java.util.UUID;
 
 public interface BlogCommentService {
     BlogCommentDTO createComment(UUID blogId, BlogCommentDTO commentDTO);
+
     BlogCommentDTO updateComment(UUID id, BlogCommentDTO commentDTO);
+
     BlogCommentDTO getCommentById(UUID id);
-    Page<BlogCommentDTO> getBlogComments(UUID blogId, Pageable pageable);
-    Page<BlogCommentDTO> getUserComments(UUID userId, Pageable pageable);
+
     void deleteComment(UUID id);
+
+    Page<BlogCommentDTO> getCommentsByBlog(UUID blogId, Pageable pageable);
+
+    Page<BlogCommentDTO> getCommentsByUser(UUID userId, Pageable pageable);
+
+    boolean isCommentAuthor(UUID commentId, Object principal);
+
+    boolean isCommentAuthorOrAdmin(UUID commentId, Object principal);
+
+    Page<BlogCommentDTO> getCommentsByBlogId(UUID blogId, Pageable pageable);
+
+    Page<BlogCommentDTO> getCommentsByAuthor(UUID authorId, Pageable pageable);
 }
