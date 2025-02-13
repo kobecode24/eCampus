@@ -23,7 +23,7 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
     Page<Blog> findByTag(String tag, Pageable pageable);
 
     @Query("SELECT b FROM Blog b WHERE b.published = true ORDER BY b.likes DESC")
-    Page<Blog> findMostPopular(Pageable pageable);
+    Page<Blog> findAllByOrderByLikesDesc(Pageable pageable);
 
     @Query("SELECT b FROM Blog b WHERE b.published = true AND " +
             "(LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +

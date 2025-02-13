@@ -18,4 +18,13 @@ public interface BlogCommentRepository extends JpaRepository<BlogComment, UUID> 
 
     @Query("SELECT c FROM BlogComment c WHERE c.blog.id = :blogId ORDER BY c.createdAt DESC")
     Page<BlogComment> findRecentComments(UUID blogId, Pageable pageable);
+
+    @Query("SELECT c FROM BlogComment c WHERE c.author.id = :authorId ORDER BY c.createdAt DESC")
+    Page<BlogComment> findRecentCommentsByAuthor(UUID authorId, Pageable pageable);
+
+    Page<BlogComment> findByBlogId(UUID blogId, Pageable pageable);
+
+    Page<BlogComment> findByBlogIdOrderByCreatedAtDesc(UUID blogId, Pageable pageable);
+
+    Page<BlogComment> findByAuthorIdOrderByCreatedAtDesc(UUID authorId, Pageable pageable);
 }
