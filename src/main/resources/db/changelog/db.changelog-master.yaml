@@ -21,3 +21,13 @@ databaseChangeLog:
       file: db/changelog/changes/010-create-user-progress-tables.yaml
   - include:
       file: db/changelog/changes/011-add-missing-columns.yaml
+  - include:
+        file: db/changelog/changes/012-add-auditing-fields.yaml
+  - include:
+        file: db/changelog/changes/013-add-audit-fields-to-badges.yaml
+  - include:
+        file: db/changelog/changes/014-add-audit-fields-to-course-progress.yaml
+  - include:
+        file: db/changelog/changes/015-add-audit-fields-to-transactions.yaml
+  - include:
+        file: db/changelog/changes/016-add-avatar-column-to-users.yaml
