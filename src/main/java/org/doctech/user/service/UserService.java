@@ -1,7 +1,9 @@
 package org.doctech.user.service;
 
+import jakarta.validation.constraints.NotBlank;
 import org.doctech.user.dto.UserDTO;
 import org.doctech.user.model.Badge;
+import org.doctech.user.model.User;
 import org.doctech.user.model.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,4 +51,10 @@ public interface UserService {
     List<UserDTO> getTopUsersByPoints(int limit);
 
     long countByRole(UserRole role);
+
+    boolean isCurrentUser(UUID userId, Object principal);
+
+    User updateUserAvatar(UUID userId, String url);
+
+    void updatePassword(UUID id, @NotBlank(message = "Current password is required") String currentPassword, @NotBlank(message = "New password is required") String newPassword);
 }

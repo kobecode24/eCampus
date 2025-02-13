@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@Service("userService")
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
@@ -262,4 +262,36 @@ public class UserServiceImpl implements UserService {
             user.setLevel(newLevel);
         }
     }
+
+    @Override
+    public boolean isCurrentUser(UUID userId, Object principal) {
+        if (principal instanceof User user) {
+            return user.getId().equals(userId);
+        }
+        return false;
+    }
+
+    @Override
+    public User updateUserAvatar(UUID userId, String avatarUrl) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        user.setAvatar(avatarUrl);
+        userRepository.save(user);
+        return user;
+    }
+
+    @Override
+    public void updatePassword(UUID userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 }
