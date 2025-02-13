@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@Service("documentationCommentService")
 @RequiredArgsConstructor
 @Transactional
 public class DocumentationCommentServiceImpl implements DocumentationCommentService {
@@ -100,5 +100,16 @@ public class DocumentationCommentServiceImpl implements DocumentationCommentServ
             throw new CommentNotFoundException("Comment not found with id: " + id);
         }
         commentRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DocumentationCommentDTO> getCommentsByDocumentation(UUID documentationId, Pageable pageable) {
+        if (!documentationRepository.existsById(documentationId)) {
+            throw new DocumentationNotFoundException("Documentation not found with id: " + documentationId);
+        }
+
+        return commentRepository.findByDocumentationIdOrderByCreatedAtDesc(documentationId, pageable)
+                .map(commentMapper::toDTO);
     }
 }

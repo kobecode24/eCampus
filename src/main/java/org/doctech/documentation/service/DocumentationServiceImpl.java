@@ -1,6 +1,7 @@
 package org.doctech.documentation.service;
 
 import lombok.RequiredArgsConstructor;
+import org.doctech.blog.model.Blog;
 import org.doctech.common.exception.DocumentationNotFoundException;
 import org.doctech.common.exception.UserNotFoundException;
 import org.doctech.common.utils.ValidationUtils;
@@ -9,6 +10,7 @@ import org.doctech.documentation.mapper.DocumentationMapper;
 import org.doctech.documentation.model.Documentation;
 import org.doctech.documentation.model.TechnologyType;
 import org.doctech.documentation.repository.DocumentationRepository;
+import org.doctech.security.model.SecurityUser;
 import org.doctech.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-@Service
+@Service("documentationService")
 @RequiredArgsConstructor
 @Transactional
 public class DocumentationServiceImpl implements DocumentationService {
@@ -111,13 +113,12 @@ public class DocumentationServiceImpl implements DocumentationService {
     }
 
     @Override
+    @Transactional
     public DocumentationDTO incrementViews(UUID id) {
-        Documentation documentation = documentationRepository.findById(id)
-                .orElseThrow(() -> new DocumentationNotFoundException("Documentation not found with id: " + id));
-
+        Documentation documentation = findDocumentationById(id);
         documentation.incrementViews();
-        Documentation updatedDocumentation = documentationRepository.save(documentation);
-        return documentationMapper.toDTO(updatedDocumentation);
+        Documentation savedDoc = documentationRepository.save(documentation);
+        return documentationMapper.toDTO(savedDoc);
     }
 
     @Override
@@ -126,5 +127,11 @@ public class DocumentationServiceImpl implements DocumentationService {
             throw new DocumentationNotFoundException("Documentation not found with id: " + id);
         }
         documentationRepository.deleteById(id);
+    }
+
+    // Helper Methods
+    private Documentation findDocumentationById(UUID id) {
+        return documentationRepository.findById(id)
+                .orElseThrow(() -> new DocumentationNotFoundException("Documentation not found with id: " + id));
     }
 }

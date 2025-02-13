@@ -14,4 +14,5 @@ public interface DocumentationCommentService {
     List<DocumentationCommentDTO> getCommentsByDocumentationId(UUID documentationId);
     Page<DocumentationCommentDTO> getCommentsByAuthor(UUID authorId, Pageable pageable);
     void deleteComment(UUID id);
+    Page<DocumentationCommentDTO> getCommentsByDocumentation(UUID documentationId, Pageable pageable);
 }
