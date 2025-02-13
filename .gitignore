@@ -34,3 +34,4 @@ build/
 /src/main/resources/application.yml
 /src/main/resources/example_application.yml
 /src/main/resources/application-prod.yml
+/logs/
