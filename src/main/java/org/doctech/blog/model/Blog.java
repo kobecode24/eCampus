@@ -44,14 +44,24 @@ public class Blog extends Auditable {
     @Builder.Default
     private Set<String> tags = new HashSet<>();
 
-    @Column(nullable = false)
-    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "blog_likes",
+            joinColumns = @JoinColumn(name = "blog_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_blog_likes",
+                    columnNames = {"blog_id", "user_id"}
+            )
+    )
+    private Set<User> likedBy = new HashSet<>();
+
+    @Column(name = "likes_count", nullable = false)
     private Integer likes = 0;
 
     @Column(name = "points_cost")
     private Integer pointsCost;
 
-    @Getter
     @Column(nullable = false)
     @Builder.Default
     private boolean published = false;
@@ -67,32 +77,23 @@ public class Blog extends Auditable {
     @Version
     private Long version;
 
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    @ToString.Exclude
-    private List<BlogComment> comments = new ArrayList<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "blog_likes",
-            joinColumns = @JoinColumn(name = "blog_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+    @OneToMany(
+            mappedBy = "blog",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
     )
     @Builder.Default
     @ToString.Exclude
-    private Set<User> likedBy = new HashSet<>();
-
-    public List<BlogComment> getComments() {
-        if (comments == null) {
-            comments = new ArrayList<>();
-        }
-        return comments;
-    }
+    private List<BlogComment> comments = new ArrayList<>();
 
     @PrePersist
     protected void onPrePersist() {
         this.createdAt = LocalDateTime.now();
         this.lastUpdatedAt = LocalDateTime.now();
+        if (this.likes == null) {
+            this.likes = 0;
+        }
     }
 
     @PreUpdate
@@ -101,53 +102,66 @@ public class Blog extends Auditable {
     }
 
     public void publish() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
+        if (!this.published) {
+            this.published = true;
+            this.publishedAt = LocalDateTime.now();
+        }
+    }
+
+    public void unpublish() {
+        this.published = false;
+        this.publishedAt = null;
+    }
+
+    public List<BlogComment> getComments() {
+        return comments != null ? comments : new ArrayList<>();
     }
 
     public void addComment(BlogComment comment) {
+        if (comments == null) {
+            comments = new ArrayList<>();
+        }
         comments.add(comment);
         comment.setBlog(this);
     }
 
     public void removeComment(BlogComment comment) {
-        comments.remove(comment);
-        comment.setBlog(null);
-    }
-
-    public void addLike(User user) {
-        if (this.likes == null) {
-            this.likes = 0;
-        }
-
-        if (likedBy.add(user)) {
-            this.likes = this.likes + 1;
+        if (comments != null) {
+            comments.remove(comment);
+            comment.setBlog(null);
         }
     }
 
-    public void removeLike(User user) {
-        if (this.likes == null) {
-            this.likes = 0;
-        }
-
-        if (likedBy.remove(user)) {
-            this.likes = Math.max(0, this.likes - 1);
+    public boolean toggleLike(User user) {
+        if (likedBy.contains(user)) {
+            likedBy.remove(user);
+            likes = Math.max(0, likes - 1);
+            return false;
+        } else {
+            likedBy.add(user);
+            likes++;
+            return true;
         }
     }
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Blog blog = (Blog) o;
-        return getId() != null && Objects.equals(getId(), blog.getId());
+    public boolean hasUserLiked(User user) {
+        return likedBy.contains(user);
     }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public int getLikesCount() {
+        return likes != null ? likes : 0;
+    }
+
+    public void addTag(String tag) {
+        if (tags == null) {
+            tags = new HashSet<>();
+        }
+        tags.add(tag);
+    }
+
+    public void removeTag(String tag) {
+        if (tags != null) {
+            tags.remove(tag);
+        }
     }
 }
