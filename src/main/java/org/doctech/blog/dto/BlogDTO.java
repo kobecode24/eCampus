@@ -43,4 +43,14 @@ public class BlogDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
     private List<BlogCommentDTO> comments;
+
+    private boolean hasLiked;
+
+    public boolean isHasLiked() {
+        return hasLiked;
+    }
+
+    public void setHasLiked(boolean hasLiked) {
+        this.hasLiked = hasLiked;
+    }
 }
