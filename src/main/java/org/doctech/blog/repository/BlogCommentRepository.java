@@ -27,4 +27,6 @@ public interface BlogCommentRepository extends JpaRepository<BlogComment, UUID> 
     Page<BlogComment> findByBlogIdOrderByCreatedAtDesc(UUID blogId, Pageable pageable);
 
     Page<BlogComment> findByAuthorIdOrderByCreatedAtDesc(UUID authorId, Pageable pageable);
+
+    long countByAuthorId(UUID authorId);
 }

@@ -29,4 +29,6 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
             "(LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(b.content) LIKE LOWER(CONCAT('%', :query, '%')))")
     Page<Blog> search(String query, Pageable pageable);
+
+    long countByAuthorId(UUID authorId);
 }
