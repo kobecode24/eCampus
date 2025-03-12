@@ -284,4 +284,40 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ApiResponse handleInvalidCredentials(InvalidCredentialsException ex) {
         return new ApiResponse(false, "Invalid Credentials", ex.getMessage());
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<ApiResponse> handleIllegalStateException(IllegalStateException ex) {
+        if (ex.getMessage().contains("already liked")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse(
+                            false,
+                            "Already Liked",
+                            "You have already liked this blog post"
+                    ));
+        }
+
+        // Handle other illegal state exceptions
+        return ResponseEntity.badRequest()
+                .body(new ApiResponse(
+                        false,
+                        "Invalid Operation",
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IllegalOperationException.class)
+    public ResponseEntity<ApiResponse> handleIllegalOperationException(IllegalOperationException ex) {
+        logger.warn("Illegal operation attempted: {}");
+
+        ApiResponse response = ApiResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .data(null)
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(response);
+    }
 }
