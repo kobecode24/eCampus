@@ -5,6 +5,7 @@ import org.doctech.blog.dto.BlogDTO;
 import org.doctech.blog.mapper.BlogMapper;
 import org.doctech.blog.model.Blog;
 import org.doctech.blog.repository.BlogRepository;
+import org.doctech.blog.repository.BlogLikesRepository;
 import org.doctech.common.exception.BlogNotFoundException;
 import org.doctech.common.exception.UserNotFoundException;
 import org.doctech.common.utils.ValidationUtils;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-@Service("blogService")
+@Service
 @RequiredArgsConstructor
 @Transactional
 public class BlogServiceImpl implements BlogService {
@@ -26,6 +27,7 @@ public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
     private final BlogMapper blogMapper;
+    private final BlogLikesRepository blogLikesRepository;
 
     // Blog Creation and Management
     @Override
@@ -96,21 +98,22 @@ public class BlogServiceImpl implements BlogService {
                 .map(blogMapper::toDTO);
     }
 
-    // Blog Engagement
+    @Transactional
     @Override
-    public BlogDTO likeBlog(UUID id, UUID userId) {
-        Blog blog = findBlogById(id);
-        User user = findAndValidateUser(userId);
-        blog.addLike(user);
-        return blogMapper.toDTO(blogRepository.save(blog));
-    }
+    public BlogDTO toggleLike(UUID blogId, UUID userId) {
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new BlogNotFoundException("Blog not found"));
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-    @Override
-    public BlogDTO unlikeBlog(UUID id, UUID userId) {
-        Blog blog = findBlogById(id);
-        User user = findAndValidateUser(userId);
-        blog.removeLike(user);
-        return blogMapper.toDTO(blogRepository.save(blog));
+        boolean newLikeState = blog.toggleLike(user);
+        Blog updatedBlog = blogRepository.save(blog);
+        
+        BlogDTO dto = blogMapper.toDTO(updatedBlog);
+        dto.setHasLiked(newLikeState);
+        
+        return dto;
     }
 
     // Blog Search and Filtering

@@ -4,6 +4,7 @@ import org.doctech.blog.dto.BlogDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -20,13 +21,12 @@ public interface BlogService {
 
     Page<BlogDTO> getBlogsByAuthor(UUID authorId, Pageable pageable);
 
+    @Transactional
+    BlogDTO toggleLike(UUID blogId, UUID userId);
+
     Page<BlogDTO> getBlogsByTag(String tag, Pageable pageable);
 
     BlogDTO publishBlog(UUID id);
-
-    BlogDTO likeBlog(UUID id, UUID userId);
-
-    BlogDTO unlikeBlog(UUID id, UUID userId);
 
     Page<BlogDTO> getMostPopularBlogs(Pageable pageable);
 
