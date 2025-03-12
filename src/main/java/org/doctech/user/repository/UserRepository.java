@@ -3,7 +3,7 @@ package org.doctech.user.repository;
 import org.doctech.user.model.User;
 import org.doctech.user.model.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);
@@ -33,4 +33,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u ORDER BY u.points DESC LIMIT :limit")
     List<User> findTopUsersByPoints(int limit);
+
+    long countByCredentialsNonExpired(boolean credentialsNonExpired);
+    long countByCreatedAtAfter(LocalDateTime dateTime);
 }
