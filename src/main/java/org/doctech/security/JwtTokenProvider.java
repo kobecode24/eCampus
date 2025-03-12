@@ -5,9 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.doctech.common.exception.InvalidTokenException;
 import org.doctech.config.JwtConfig;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -42,12 +46,13 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(jwtConfig.getSecret()).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                .setSigningKey(jwtConfig.getSecret())
+                .build()
+                .parseClaimsJws(authToken);
             return true;
-        } catch (SignatureException ex) {
-            log.error("Invalid JWT signature");
         } catch (MalformedJwtException ex) {
             log.error("Invalid JWT token");
         } catch (ExpiredJwtException ex) {
@@ -67,12 +72,29 @@ public class JwtTokenProvider {
 
     public String refreshToken(String refreshToken) {
         if (!validateToken(refreshToken)) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new JwtException("Invalid refresh token");
         }
-
+        
         String username = getUsernameFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        
+        if (!userDetails.isEnabled()) {
+            throw new DisabledException("User account is disabled");
+        }
 
-        return generateToken(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+        // Generate new access token using username
+        return generateTokenFromUsername(username);
+    }
+
+    private String generateTokenFromUsername(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtConfig.getExpirationTime());
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret())
+                .compact();
     }
 }
