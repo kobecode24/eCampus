@@ -3,6 +3,7 @@ package org.doctech.user.service;
 import lombok.RequiredArgsConstructor;
 import org.doctech.common.exception.*;
 import org.doctech.user.dto.UserDTO;
+import org.doctech.user.dto.UserStatisticsDTO;
 import org.doctech.user.mapper.UserMapper;
 import org.doctech.user.model.Badge;
 import org.doctech.user.model.Role;
@@ -11,8 +12,15 @@ import org.doctech.user.model.UserRole;
 import org.doctech.user.repository.BadgeRepository;
 import org.doctech.user.repository.RoleRepository;
 import org.doctech.user.repository.UserRepository;
+import org.doctech.blog.repository.BlogRepository;
+import org.doctech.blog.repository.BlogCommentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Join;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private final BadgeRepository badgeRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final BlogRepository blogRepository;
+    private final BlogCommentRepository commentRepository;
 
     @Override
     public UserDTO registerUser(String email, String username, String password, UserRole roleType) {
@@ -292,6 +302,141 @@ public class UserServiceImpl implements UserService {
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserStatisticsDTO getUserStatistics() {
+        return UserStatisticsDTO.builder()
+                .totalActiveUsers(userRepository.countByCredentialsNonExpired(true))
+                .newUsersToday(userRepository.countByCreatedAtAfter(LocalDate.now().atStartOfDay()))
+                .totalStudents(countByRole(UserRole.STUDENT))
+                .totalInstructors(countByRole(UserRole.INSTRUCTOR))
+                .avgEngagement(calculateAverageEngagement())
+                .build();
+    }
+
+    private double calculateAverageEngagement() {
+        double avgEngagement = userRepository.findAll().stream()
+                .mapToDouble(user -> {
+                    long postCount = blogRepository.countByAuthorId(user.getId());
+                    long commentCount = commentRepository.countByAuthorId(user.getId());
+                    long totalActions = postCount + commentCount;
+
+                    int daysSinceCreation = (int) java.time.Duration.between(
+                            user.getCreatedAt(), 
+                            LocalDateTime.now()
+                    ).toDays();
+
+                    return daysSinceCreation > 0 ? 
+                           (double) totalActions / daysSinceCreation * 100 : 0;
+                })
+                .average()
+                .orElse(0.0);
+                
+        
+        return Math.round(avgEngagement * 10.0) / 10.0;
+    }
+
+    @Override
+    public UserDTO updateUserStatus(UUID id, boolean enabled) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        
+        // Check if user has ADMIN role
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getName().equals("ADMIN"));
+        
+        if (isAdmin && !enabled) {
+            throw new IllegalOperationException("Cannot disable an admin user");
+        }
+        
+        user.setEnabled(enabled);
+        userRepository.save(user);
+        
+        return userMapper.toDTO(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserDTO> getFilteredUsers(
+            List<String> roles,
+            String registrationDate,
+            Integer minPoints,
+            Integer maxPoints,
+            Boolean enabled,
+            String activityLevel,
+            Pageable pageable) {
+        
+        Specification<User> spec = Specification.where(null);
+
+        if (roles != null && !roles.isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                Join<User, Role> roleJoin = root.join("roles");
+                return roleJoin.get("name").in(roles);
+            });
+        }
+
+        if (registrationDate != null) {
+            LocalDateTime dateFrom = switch (registrationDate) {
+                case "today" -> LocalDate.now().atStartOfDay();
+                case "week" -> LocalDate.now().minusWeeks(1).atStartOfDay();
+                case "month" -> LocalDate.now().minusMonths(1).atStartOfDay();
+                case "year" -> LocalDate.now().minusYears(1).atStartOfDay();
+                default -> null;
+            };
+
+            if (dateFrom != null) {
+                spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("createdAt"), dateFrom));
+            }
+        }
+
+        if (minPoints != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.greaterThanOrEqualTo(root.get("points"), minPoints));
+        }
+
+        if (maxPoints != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.lessThanOrEqualTo(root.get("points"), maxPoints));
+        }
+
+        if (enabled != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("enabled"), enabled));
+        }
+
+        if (activityLevel != null) {
+            spec = spec.and((root, query, cb) -> {
+                LocalDateTime now = LocalDateTime.now();
+                return switch (activityLevel.toLowerCase()) {
+                    case "high" -> cb.greaterThanOrEqualTo(root.get("lastActivityAt"), now.minusDays(7));
+                    case "medium" -> cb.between(root.get("lastActivityAt"), now.minusDays(30), now.minusDays(7));
+                    case "low" -> cb.between(root.get("lastActivityAt"), now.minusDays(90), now.minusDays(30));
+                    case "inactive" -> cb.lessThanOrEqualTo(root.get("lastActivityAt"), now.minusDays(90));
+                    default -> cb.conjunction();
+                };
+            });
+        }
+
+        return userRepository.findAll(spec, pageable).map(userMapper::toDTO);
+    }
+
+    @Override
+    public UserDTO updateUserRoles(UUID userId, List<String> roleNames) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        user.getRoles().clear();
+        roleNames.forEach(roleName -> {
+            Role role = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RoleNotFoundException("Role not found: " + roleName));
+            user.addRole(role);
+        });
+
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDTO(updatedUser);
     }
 
 }

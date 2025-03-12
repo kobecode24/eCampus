@@ -2,6 +2,7 @@ package org.doctech.user.service;
 
 import jakarta.validation.constraints.NotBlank;
 import org.doctech.user.dto.UserDTO;
+import org.doctech.user.dto.UserStatisticsDTO;
 import org.doctech.user.model.Badge;
 import org.doctech.user.model.User;
 import org.doctech.user.model.UserRole;
@@ -57,4 +58,12 @@ public interface UserService {
     User updateUserAvatar(UUID userId, String url);
 
     void updatePassword(UUID id, @NotBlank(message = "Current password is required") String currentPassword, @NotBlank(message = "New password is required") String newPassword);
+
+    UserStatisticsDTO getUserStatistics();
+
+    UserDTO updateUserStatus(UUID id, boolean enabled);
+
+    Page<UserDTO> getFilteredUsers(List<String> roles, String registrationDate, Integer minPoints, Integer maxPoints, Boolean enabled, String activityLevel, Pageable pageable);
+
+    UserDTO updateUserRoles(UUID userId, List<String> roles);
 }
