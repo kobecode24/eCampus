@@ -12,8 +12,9 @@ public interface BlogMapper {
 
     @Mapping(source = "author.id", target = "authorId")
     @Mapping(source = "author.username", target = "authorUsername")
-    @Mapping(target = "likes", expression = "java(mapLikedByToLikes(blog.getLikedBy()))")
+    @Mapping(target = "likes", expression = "java(blog.getLikes())")
     @Mapping(source = "comments", target = "comments")
+    @Mapping(target = "hasLiked", ignore = true)
     BlogDTO toDTO(Blog blog);
 
     @Mapping(target = "author", ignore = true)
@@ -33,5 +34,11 @@ public interface BlogMapper {
 
     default Integer mapLikedByToLikes(java.util.Set<User> likedBy) {
         return likedBy != null ? likedBy.size() : 0;
+    }
+
+    default BlogDTO toDtoWithLikeStatus(Blog blog) {
+        BlogDTO dto = toDTO(blog);
+        // This will be populated from service layer
+        return dto;
     }
 }
