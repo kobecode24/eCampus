@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017-add-likes-count-to-blogs
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: blogs
+            columns:
+              - column:
+                  name: likes_count
+                  type: integer
+                  defaultValue: '0'
+                  constraints:
+                    nullable: false 
