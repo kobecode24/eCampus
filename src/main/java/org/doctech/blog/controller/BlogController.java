@@ -99,32 +99,19 @@ public class BlogController {
     }
 
     // Blog Engagement
-    @PostMapping("/{id}/like")
+    @PostMapping("/{blogId}/toggle-like")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse> likeBlog(
-            @PathVariable UUID id,
+    public ResponseEntity<ApiResponse> toggleLike(
+            @PathVariable UUID blogId,
             Authentication authentication) {
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        BlogDTO likedBlog = blogService.likeBlog(id, securityUser.getId());
-
+        BlogDTO updatedBlog = blogService.toggleLike(blogId, securityUser.getId());
+        
         return ResponseEntity.ok(new ApiResponse(
-                true,
-                "Blog liked successfully",
-                likedBlog));
-    }
-
-    @PostMapping("/{id}/unlike")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse> unlikeBlog(
-            @PathVariable UUID id,
-            Authentication authentication) {
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        BlogDTO unlikedBlog = blogService.unlikeBlog(id, securityUser.getId());
-
-        return ResponseEntity.ok(new ApiResponse(
-                true,
-                "Blog unliked successfully",
-                unlikedBlog));
+            true,
+            "Like status updated successfully",
+            updatedBlog
+        ));
     }
 
     // Blog Search and Filtering
