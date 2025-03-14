@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-create-documentation-sections-table
+      author: doctech
+      changes:
+        - createTable:
+            tableName: documentation_sections
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: documentation_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_documentation_sections_doc
+                    references: documentation(id)
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_index
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: section_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_documentation_section_creator
+                    references: users(id)
+              - column:
+                  name: last_modified_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_documentation_section_modifier
+                    references: users(id)
+              - column:
+                  name: last_modified_at
+                  type: timestamp

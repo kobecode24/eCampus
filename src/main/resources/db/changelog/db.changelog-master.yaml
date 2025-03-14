@@ -33,3 +33,7 @@ databaseChangeLog:
         file: db/changelog/changes/016-add-avatar-column-to-users.yaml
   - include:
       file: db/changelog/changes/017-add-likes-count-to-blogs.yaml
+  - include:
+      file: db/changelog/changes/018-add-status-to-documentation.yaml
+  - include:
+        file: db/changelog/changes/019-create-documentation-sections-table.yaml

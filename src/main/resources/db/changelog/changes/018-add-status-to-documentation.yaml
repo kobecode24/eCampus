@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-add-status-to-documentation
+      author: doctech
+      changes:
+        - addColumn:
+            tableName: documentation
+            columns:
+              - column:
+                  name: status
+                  type: varchar(50)
+                  defaultValue: 'DRAFT'
+                  constraints:
+                    nullable: false 
