@@ -4,7 +4,12 @@ public enum TechnologyType {
     PROGRAMMING_LANGUAGE,
     FRAMEWORK,
     LIBRARY,
+    FRONTEND,
+    BACKEND,
+    DEVOPS,
+    API,
     TOOL,
     DATABASE,
-    CLOUD_SERVICE
+    CLOUD_SERVICE,
+    OTHER
 }
