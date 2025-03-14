@@ -65,6 +65,11 @@ public class Documentation extends Auditable {
     @Version
     private Long version;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private DocumentationStatus status = DocumentationStatus.DRAFT;
+
     @PrePersist
     protected void onPrePersist() {
         this.createdAt = LocalDateTime.now();
