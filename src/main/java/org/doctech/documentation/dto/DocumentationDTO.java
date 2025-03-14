@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.doctech.documentation.model.DocumentationStatus;
 import org.doctech.documentation.model.TechnologyType;
 
 import java.time.LocalDateTime;
@@ -41,4 +42,6 @@ public class DocumentationDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
     private Long version;
+    private DocumentationStatus status;
+    private List<DocumentationSectionDTO> sections;
 }
