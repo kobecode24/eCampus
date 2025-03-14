@@ -1,6 +1,7 @@
 package org.doctech.documentation.repository;
 
 import org.doctech.documentation.model.Documentation;
+import org.doctech.documentation.model.DocumentationStatus;
 import org.doctech.documentation.model.TechnologyType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,4 +31,9 @@ public interface DocumentationRepository extends JpaRepository<Documentation, UU
     @Query("SELECT d FROM Documentation d WHERE LOWER(d.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "OR LOWER(d.content) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Documentation> search(String query, Pageable pageable);
+
+    long countByStatus(DocumentationStatus status);
+    Page<Documentation> findByStatusOrderByLastUpdatedAtDesc(DocumentationStatus status, Pageable pageable);
+
+    long countByTechnology(TechnologyType technology);
 }
