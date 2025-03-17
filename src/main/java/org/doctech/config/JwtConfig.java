@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class JwtConfig {
     private String secret;
     private long expirationTime;
+    private long refreshExpirationTime;
     private String tokenPrefix = "Bearer ";
     private String headerString = "Authorization";
 }
