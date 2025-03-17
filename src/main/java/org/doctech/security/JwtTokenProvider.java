@@ -37,6 +37,20 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateRefreshToken(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Date now = new Date();
+        // Use the dedicated refresh token expiration time from config
+        Date expiryDate = new Date(now.getTime() + jwtConfig.getRefreshExpirationTime());
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret())
+                .compact();
+    }
+
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtConfig.getSecret())
@@ -52,15 +66,19 @@ public class JwtTokenProvider {
                 .setSigningKey(jwtConfig.getSecret())
                 .build()
                 .parseClaimsJws(authToken);
+            log.debug("Token validated successfully");
             return true;
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token");
+            log.error("Invalid JWT token: {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            log.error("Expired JWT token: {}", ex.getMessage());
+            throw ex; // Re-throw to be caught by filter
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            log.error("Unsupported JWT token: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty");
+            log.error("JWT claims string is empty: {}", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("JWT validation error: {}", ex.getMessage());
         }
         return false;
     }
@@ -84,6 +102,25 @@ public class JwtTokenProvider {
 
         // Generate new access token using username
         return generateTokenFromUsername(username);
+    }
+
+    public String refreshRefreshToken(String oldRefreshToken) {
+        if (!validateToken(oldRefreshToken)) {
+            throw new JwtException("Invalid refresh token");
+        }
+        
+        String username = getUsernameFromToken(oldRefreshToken);
+        
+        // Generate new refresh token with configured expiration
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtConfig.getRefreshExpirationTime());
+        
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret())
+                .compact();
     }
 
     private String generateTokenFromUsername(String username) {
