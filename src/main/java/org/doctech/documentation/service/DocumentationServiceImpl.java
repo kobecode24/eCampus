@@ -86,7 +86,11 @@ public class DocumentationServiceImpl implements DocumentationService {
     @Transactional(readOnly = true)
     public Page<DocumentationDTO> getAllDocumentation(Pageable pageable) {
         return documentationRepository.findAll(pageable)
-                .map(documentationMapper::toDTO);
+                .map(doc -> {
+                    DocumentationDTO dto = documentationMapper.toDTO(doc);
+                    dto.setSections(getDocumentationSections(doc.getId()));
+                    return dto;
+                });
     }
 
     @Override
@@ -183,11 +187,19 @@ public class DocumentationServiceImpl implements DocumentationService {
         DocumentationSection section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new DocumentationNotFoundException("Section not found with id: " + sectionId));
         
-        section.setTitle(sectionDTO.getTitle());
-        section.setContent(sectionDTO.getContent());
+        // Only update fields that are provided (not null)
+        if (sectionDTO.getTitle() != null) {
+            section.setTitle(sectionDTO.getTitle());
+        }
+        
+        if (sectionDTO.getContent() != null) {
+            section.setContent(sectionDTO.getContent());
+        }
+        
         if (sectionDTO.getSectionId() != null) {
             section.setSectionId(sectionDTO.getSectionId());
         }
+        
         if (sectionDTO.getOrderIndex() != null) {
             section.setOrderIndex(sectionDTO.getOrderIndex());
         }
