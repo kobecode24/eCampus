@@ -381,20 +381,13 @@ public class DocumentationController {
         TechnologyType tech;
         String title = customizations.get("title").toString();
         String description = customizations.getOrDefault("description", "").toString();
-        
-        switch (templateType.toLowerCase()) {
-            case "react":
-                tech = TechnologyType.FRONTEND;
-                break;
-            case "spring":
-                tech = TechnologyType.BACKEND;
-                break;
-            case "api":
-                tech = TechnologyType.API;
-                break;
-            default:
-                tech = TechnologyType.LIBRARY;
-        }
+
+        tech = switch (templateType.toLowerCase()) {
+            case "react" -> TechnologyType.FRONTEND;
+            case "spring" -> TechnologyType.BACKEND;
+            case "api" -> TechnologyType.API;
+            default -> TechnologyType.LIBRARY;
+        };
         
         // Create documentation from template
         Documentation doc = documentationService.createDocumentationFromTemplate(

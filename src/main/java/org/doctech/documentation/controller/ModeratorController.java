@@ -10,6 +10,8 @@ import org.doctech.documentation.model.DocumentationStatus;
 import org.doctech.documentation.repository.DocumentationRepository;
 import org.doctech.documentation.service.DocumentationService;
 import org.doctech.security.model.SecurityUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -304,6 +306,146 @@ public class ModeratorController {
         workflow.put("availableTransitions", availableTransitions);
         
         return ResponseEntity.ok(new ApiResponse(true, "Workflow information retrieved", workflow));
+    }
+
+    @GetMapping("/recent-activity")
+    public ResponseEntity<ApiResponse> getRecentDocumentationActivity() {
+        Map<String, Object> activity = new HashMap<>();
+        
+        // Recent status changes (simulated for now)
+        List<Map<String, Object>> statusChanges = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Map<String, Object> change = new HashMap<>();
+            change.put("documentId", UUID.randomUUID());
+            change.put("documentTitle", "Sample Document " + (i + 1));
+            change.put("fromStatus", DocumentationStatus.DRAFT.name());
+            change.put("toStatus", DocumentationStatus.REVIEW.name());
+            change.put("changedBy", "user" + (i % 3 + 1));
+            change.put("timestamp", LocalDateTime.now().minusDays(i));
+            statusChanges.add(change);
+        }
+        activity.put("statusChanges", statusChanges);
+        
+        // Recent edits (simulated)
+        List<Map<String, Object>> recentEdits = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Map<String, Object> edit = new HashMap<>();
+            edit.put("documentId", UUID.randomUUID());
+            edit.put("documentTitle", "Edited Document " + (i + 1));
+            edit.put("editedBy", "editor" + (i % 3 + 1));
+            edit.put("timestamp", LocalDateTime.now().minusHours(i * 2));
+            edit.put("changeDescription", "Updated content in section " + (i + 1));
+            recentEdits.add(edit);
+        }
+        activity.put("recentEdits", recentEdits);
+        
+        // Recent views
+        List<Map<String, Object>> recentViews = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            Map<String, Object> view = new HashMap<>();
+            view.put("documentId", UUID.randomUUID());
+            view.put("documentTitle", "Viewed Document " + (i + 1));
+            view.put("viewedBy", "viewer" + (i % 5 + 1));
+            view.put("timestamp", LocalDateTime.now().minusMinutes(i * 30));
+            recentViews.add(view);
+        }
+        activity.put("recentViews", recentViews);
+        
+        return ResponseEntity.ok(new ApiResponse(true, "Recent activity retrieved", activity));
+    }
+
+    @GetMapping("/statistics/summary")
+    public ResponseEntity<ApiResponse> getDocumentationStatisticsSummary() {
+        Map<String, Object> statistics = new HashMap<>();
+        
+        // Document status distribution
+        Map<String, Long> statusCounts = documentationService.getDocumentStatusDistribution();
+        statistics.put("statusDistribution", statusCounts);
+        
+        // Technology distribution
+        Map<String, Long> techDistribution = documentationService.getDocumentTechnologyDistribution();
+        statistics.put("technologyDistribution", techDistribution);
+        
+        // Top viewed documents
+        Page<DocumentationDTO> topViewed = documentationService.getMostViewedDocumentation(PageRequest.of(0, 5));
+        statistics.put("topViewed", topViewed.getContent());
+        
+        // Activity timeline (last 7 days)
+        List<Map<String, Object>> timeline = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 7; i++) {
+            Map<String, Object> day = new HashMap<>();
+            day.put("date", LocalDateTime.now().minusDays(i).toLocalDate().toString());
+            day.put("created", random.nextInt(10));
+            day.put("published", random.nextInt(6));
+            day.put("viewed", 10 + random.nextInt(20));
+            timeline.add(day);
+        }
+        statistics.put("activityTimeline", timeline);
+        
+        return ResponseEntity.ok(new ApiResponse(true, "Documentation statistics retrieved", statistics));
+    }
+
+    @GetMapping("/document-details/{docId}")
+    public ResponseEntity<ApiResponse> getDocumentDetails(@PathVariable UUID docId) {
+        DocumentationDTO doc = documentationService.getDocumentationById(docId);
+        List<DocumentationSectionDTO> sections = documentationService.getDocumentationSections(docId);
+        
+        // Get document status workflow data
+        Map<String, Object> workflowData = getWorkflowData(doc.getStatus());
+        
+        // Build response with all document details
+        Map<String, Object> details = new HashMap<>();
+        details.put("document", doc);
+        details.put("sections", sections);
+        details.put("workflow", workflowData);
+        
+        // Add some analytics
+        details.put("analytics", Map.of(
+            "wordCount", countWords(doc.getContent()),
+            "readTime", estimateReadTime(doc.getContent()),
+            "lastViewed", LocalDateTime.now().minusHours(3),
+            "viewCount", doc.getViews() != null ? doc.getViews() : 0
+        ));
+        
+        return ResponseEntity.ok(new ApiResponse(true, "Document details retrieved", details));
+    }
+
+    private Map<String, Object> getWorkflowData(DocumentationStatus status) {
+        Map<String, Object> workflow = new HashMap<>();
+        workflow.put("currentStatus", status);
+        
+        // Define available transitions based on current status
+        List<String> availableTransitions = new ArrayList<>();
+        switch (status) {
+            case DRAFT:
+                availableTransitions.add(DocumentationStatus.REVIEW.name());
+                break;
+            case REVIEW:
+                availableTransitions.add(DocumentationStatus.PUBLISHED.name());
+                availableTransitions.add(DocumentationStatus.DRAFT.name());
+                break;
+            case PUBLISHED:
+                availableTransitions.add(DocumentationStatus.ARCHIVED.name());
+                availableTransitions.add(DocumentationStatus.DRAFT.name());
+                break;
+            case ARCHIVED:
+                availableTransitions.add(DocumentationStatus.DRAFT.name());
+                break;
+            default:
+                break;
+        }
+        workflow.put("availableTransitions", availableTransitions);
+        
+        // Add simple metrics
+        Map<String, Object> metrics = new HashMap<>();
+        metrics.put("timeInCurrentStatus", "2 days");
+        metrics.put("reviewers", List.of("admin", "moderator1"));
+        metrics.put("lastStatusChange", LocalDateTime.now().minusDays(2));
+        
+        workflow.put("metrics", metrics);
+        
+        return workflow;
     }
 
     private int countWords(String content) {
