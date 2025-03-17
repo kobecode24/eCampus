@@ -16,5 +16,6 @@ public interface DocumentationMapper {
     DocumentationDTO toDTO(Documentation documentation);
 
     @Mapping(target = "author", ignore = true)
+    @Mapping(target = "status", defaultExpression = "java(org.doctech.documentation.model.DocumentationStatus.DRAFT)")
     Documentation toEntity(DocumentationDTO dto);
 }
