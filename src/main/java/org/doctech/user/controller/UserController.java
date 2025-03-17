@@ -1,5 +1,6 @@
 package org.doctech.user.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.doctech.common.dto.ApiResponse;
 import org.doctech.common.dto.PagedResponse;
@@ -29,9 +30,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import java.util.List;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/users")
@@ -63,7 +65,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest) {
+        // Log request details to help troubleshoot
+        System.out.println("Login request received:");
+        System.out.println("Request URI: " + servletRequest.getRequestURI());
+        System.out.println("Context Path: " + servletRequest.getContextPath());
+        System.out.println("Servlet Path: " + servletRequest.getServletPath());
+        System.out.println("Username: " + request.getUsername());
+        
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -75,9 +84,11 @@ public class UserController {
         userService.updateLastLogin(securityUser.getId());
 
         String token = tokenProvider.generateToken(authentication);
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
+        response.put("refreshToken", refreshToken);
         response.put("tokenType", "Bearer");
 
         return ResponseEntity.ok(new ApiResponse(true, "Login successful", response));
@@ -125,8 +136,11 @@ public class UserController {
 
         try {
             String newToken = tokenProvider.refreshToken(refreshToken);
+            String newRefreshToken = tokenProvider.refreshRefreshToken(refreshToken);
+            
             Map<String, String> tokens = new HashMap<>();
             tokens.put("token", newToken);
+            tokens.put("refreshToken", newRefreshToken);
 
             return ResponseEntity.ok(new ApiResponse(true, "Token refreshed successfully", tokens));
         } catch (Exception e) {
@@ -258,5 +272,27 @@ public class UserController {
 
         UserDTO updatedUser = userService.updateUserRoles(id, roles);
         return ResponseEntity.ok(new ApiResponse(true, "User roles updated successfully", updatedUser));
+    }
+
+    @GetMapping("/auth/debug")
+    public ResponseEntity<ApiResponse> debugAuth(Authentication authentication) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("authenticated", authentication != null);
+        
+        if (authentication != null) {
+            SecurityUser securityUser = null;
+            if (authentication.getPrincipal() instanceof SecurityUser) {
+                securityUser = (SecurityUser) authentication.getPrincipal();
+            }
+            
+            response.put("username", securityUser != null ? securityUser.getUsername() : "unknown");
+            response.put("authorities", authentication.getAuthorities().stream()
+                    .map(Object::toString)
+                    .toList());
+            response.put("tokenExpiryTime", "Use client-side debugging to check token expiry");
+            response.put("serverTime", new Date());
+        }
+        
+        return ResponseEntity.ok(new ApiResponse(true, "Authentication debug info", response));
     }
 }
