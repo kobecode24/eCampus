@@ -54,6 +54,7 @@ public class Blog extends Auditable {
                     columnNames = {"blog_id", "user_id"}
             )
     )
+    @ToString.Exclude
     private Set<User> likedBy = new HashSet<>();
 
     @Column(name = "likes_count", nullable = false)
