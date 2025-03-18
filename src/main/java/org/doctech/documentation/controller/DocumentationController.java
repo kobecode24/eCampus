@@ -81,6 +81,12 @@ public class DocumentationController {
         return ResponseEntity.ok(new ApiResponse(true, "Documentation retrieved successfully", doc));
     }
 
+    @GetMapping("/sections/{id}")
+    public ResponseEntity<ApiResponse> getDocumentationSection(@PathVariable UUID id) {
+        DocumentationSectionDTO section = documentationService.getSectionById(id);
+        return ResponseEntity.ok(new ApiResponse(true, "Section retrieved successfully", section));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse> getAllDocumentation(Pageable pageable) {
         Page<DocumentationDTO> docs = documentationService.getAllDocumentation(pageable);
