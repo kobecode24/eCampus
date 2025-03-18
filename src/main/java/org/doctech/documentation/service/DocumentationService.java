@@ -3,6 +3,7 @@ package org.doctech.documentation.service;
 import org.doctech.documentation.dto.DocumentationDTO;
 import org.doctech.documentation.dto.DocumentationSectionDTO;
 import org.doctech.documentation.model.Documentation;
+import org.doctech.documentation.model.DocumentationSection;
 import org.doctech.documentation.model.DocumentationStatus;
 import org.doctech.documentation.model.TechnologyType;
 import org.springframework.data.domain.Page;
@@ -37,4 +38,5 @@ public interface DocumentationService {
     Map<String, Long> getDocumentStatusDistribution();
 
     Map<String, Long> getDocumentTechnologyDistribution();
+    DocumentationSectionDTO getSectionById(UUID sectionId);
 }

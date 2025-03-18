@@ -7,6 +7,7 @@ import org.doctech.common.utils.ValidationUtils;
 import org.doctech.documentation.dto.DocumentationDTO;
 import org.doctech.documentation.dto.DocumentationSectionDTO;
 import org.doctech.documentation.mapper.DocumentationMapper;
+import org.doctech.documentation.mapper.DocumentationSectionMapper;
 import org.doctech.documentation.model.Documentation;
 import org.doctech.documentation.model.DocumentationSection;
 import org.doctech.documentation.model.DocumentationStatus;
@@ -34,6 +35,7 @@ public class DocumentationServiceImpl implements DocumentationService {
     private final DocumentationRepository documentationRepository;
     private final UserRepository userRepository;
     private final DocumentationMapper documentationMapper;
+    private final DocumentationSectionMapper sectionMapper;
     private final DocumentationSectionRepository sectionRepository;
 
     @Override
@@ -331,6 +333,9 @@ public class DocumentationServiceImpl implements DocumentationService {
                 .content(section.getContent())
                 .orderIndex(section.getOrderIndex())
                 .sectionId(section.getSectionId())
+                .lastModifiedBy(section.getLastModifiedBy())
+                .createdAt(section.getCreatedAt())
+                .lastUpdatedAt(section.getLastModifiedAt())
                 .build();
     }
 
@@ -390,5 +395,13 @@ public class DocumentationServiceImpl implements DocumentationService {
             distribution.put(type.name(), documentationRepository.countByTechnology(type));
         }
         return distribution;
+    }
+
+    @Override
+    public DocumentationSectionDTO getSectionById(UUID sectionId) {
+        DocumentationSection section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new DocumentationNotFoundException("Section not found"));
+
+        return sectionMapper.toDTO(section);
     }
 }
