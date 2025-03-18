@@ -41,6 +41,7 @@ public class DocumentationDTO {
     private List<DocumentationCommentDTO> comments;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
+    private UUID lastModifiedBy;
     private Long version;
     private DocumentationStatus status;
     private List<DocumentationSectionDTO> sections;

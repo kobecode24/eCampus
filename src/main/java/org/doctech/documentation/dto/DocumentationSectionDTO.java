@@ -3,6 +3,7 @@ package org.doctech.documentation.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -16,4 +17,8 @@ public class DocumentationSectionDTO {
     private String content;
     private Integer orderIndex;
     private String sectionId;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastUpdatedAt;
+    private UUID lastModifiedBy;
+
 }
