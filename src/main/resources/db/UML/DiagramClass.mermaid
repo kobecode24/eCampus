@@ -1,0 +1,102 @@
+classDiagram
+%% User Domain
+    class User {
+        +UUID id
+        +String username
+        +String email
+        +String avatar
+        +String passwordHash
+        +boolean enabled
+        +LocalDateTime createdAt
+        +LocalDateTime lastLogin
+    }
+
+    class Role {
+        +UUID id
+        +String name
+    }
+
+%% Blog Domain
+    class Blog {
+        +UUID id
+        +String title
+        +String content
+        +Set~String~ tags
+        +Integer likes
+        +Integer pointsCost
+        +boolean published
+        +LocalDateTime publishedAt
+        +LocalDateTime createdAt
+        +publish()
+        +unpublish()
+        +toggleLike(User)
+        +addComment(BlogComment)
+        +removeComment(BlogComment)
+    }
+
+    class BlogComment {
+        +UUID id
+        +String content
+        +LocalDateTime createdAt
+        +LocalDateTime lastUpdatedAt
+    }
+
+%% Documentation Domain
+    class Documentation {
+        +UUID id
+        +String title
+        +String content
+        +Set~String~ tags
+        +Integer views
+        +TechnologyType technology
+        +DocumentationStatus status
+        +LocalDateTime createdAt
+        +LocalDateTime lastUpdatedAt
+        +incrementViews()
+    }
+
+    class DocumentationSection {
+        +UUID id
+        +String title
+        +String content
+        +Integer orderIndex
+        +String sectionId
+    }
+
+%% Enums
+    class DocumentationStatus {
+        <<enumeration>>
+        DRAFT
+        REVIEW
+        PUBLISHED
+        ARCHIVED
+    }
+
+    class TechnologyType {
+        <<enumeration>>
+        PROGRAMMING_LANGUAGE
+        FRAMEWORK
+        LIBRARY
+        FRONTEND
+        BACKEND
+        DEVOPS
+        API
+        TOOL
+        DATABASE
+        CLOUD_SERVICE
+        OTHER
+    }
+
+%% Relationships
+    User "*" -- "*" Role : has
+    User "1" -- "*" Blog : authors
+    User "1" -- "*" BlogComment : authors
+    User "1" -- "*" Documentation : authors
+
+    Blog "1" -- "*" BlogComment : contains
+    Blog "*" -- "*" User : liked by
+
+    Documentation "1" -- "*" DocumentationSection : contains
+
+    Documentation ..> DocumentationStatus : has
+    Documentation ..> TechnologyType : categorized as
