@@ -39,4 +39,6 @@ public interface DocumentationService {
 
     Map<String, Long> getDocumentTechnologyDistribution();
     DocumentationSectionDTO getSectionById(UUID sectionId);
+    Page<DocumentationSectionDTO> searchSections(String query, Pageable pageable);
+    int getDocumentationReadingTime(UUID docId);
 }

@@ -404,4 +404,55 @@ public class DocumentationServiceImpl implements DocumentationService {
 
         return sectionMapper.toDTO(section);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int getDocumentationReadingTime(UUID docId) {
+        if (!documentationRepository.existsById(docId)) {
+            throw new DocumentationNotFoundException("Documentation not found with id: " + docId);
+        }
+        
+        // Get all sections of the documentation
+        List<DocumentationSection> sections = sectionRepository.findByDocumentationIdOrderByOrderIndex(docId);
+        
+        // Calculate total reading time by summing up individual section reading times
+        int totalReadingTime = 0;
+        for (DocumentationSection section : sections) {
+            totalReadingTime += calculateSectionReadingTime(section.getContent());
+        }
+        
+        // Add reading time for the main documentation content
+        Documentation documentation = documentationRepository.findById(docId).orElseThrow();
+        totalReadingTime += calculateSectionReadingTime(documentation.getContent());
+        
+        return Math.max(1, totalReadingTime); // Minimum 1 minute reading time
+    }
+
+    /**
+     * Calculates the estimated reading time for a content string
+     * 
+     * @param content The content to calculate reading time for
+     * @return Estimated reading time in minutes
+     */
+    private int calculateSectionReadingTime(String content) {
+        if (content == null || content.isEmpty()) {
+            return 0;
+        }
+        
+        // Remove HTML tags
+        String plainText = content.replaceAll("<[^>]*>", "");
+        
+        // Count words
+        int wordCount = plainText.split("\\s+").length;
+        
+        // Average reading speed: 225 words per minute
+        return wordCount / 225;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DocumentationSectionDTO> searchSections(String query, Pageable pageable) {
+        Page<DocumentationSection> sectionPage = sectionRepository.searchSections(query, pageable);
+        return sectionPage.map(this::mapSectionToDTO);
+    }
 }
