@@ -407,4 +407,46 @@ public class DocumentationController {
             ));
     }
 
+    @GetMapping("/{docId}/reading-time")
+    public ResponseEntity<ApiResponse> getDocumentationReadingTime(@PathVariable UUID docId) {
+        int readingTimeMinutes = documentationService.getDocumentationReadingTime(docId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("readingTimeMinutes", readingTimeMinutes);
+        response.put("readingTimeFormatted", formatReadingTime(readingTimeMinutes));
+        
+        return ResponseEntity.ok(new ApiResponse(
+            true,
+            "Documentation reading time retrieved successfully",
+            response
+        ));
+    }
+
+    /**
+     * Format reading time into a user-friendly string
+     */
+    private String formatReadingTime(int minutes) {
+        if (minutes < 1) {
+            return "Less than a minute";
+        } else if (minutes == 1) {
+            return "1 minute read";
+        } else {
+            return minutes + " minutes read";
+        }
+    }
+
+    @GetMapping("/sections/search")
+    public ResponseEntity<ApiResponse> searchSections(
+            @RequestParam String query,
+            Pageable pageable) {
+        Page<DocumentationSectionDTO> sections = documentationService.searchSections(query, pageable);
+        PagedResponse<DocumentationSectionDTO> response = PagedResponse.of(sections.getContent(), sections);
+        
+        return ResponseEntity.ok(new ApiResponse(
+            true,
+            "Section search results retrieved successfully",
+            response
+        ));
+    }
+
 }
