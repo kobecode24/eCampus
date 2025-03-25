@@ -73,21 +73,36 @@ public class BlogController {
 
     // Blog Retrieval
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getBlog(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse> getBlog(@PathVariable UUID id, Authentication authentication) {
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            currentUserId = ((SecurityUser) authentication.getPrincipal()).getId();
+        }
+        
         return ResponseEntity.ok(new ApiResponse(true, "Blog retrieved successfully",
-                blogService.getBlogById(id)));
+                blogService.getBlogById(id, currentUserId)));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllBlogs(Pageable pageable) {
+    public ResponseEntity<ApiResponse> getAllBlogs(Pageable pageable, Authentication authentication) {
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            currentUserId = ((SecurityUser) authentication.getPrincipal()).getId();
+        }
+        
         return ResponseEntity.ok(new ApiResponse(true, "Blogs retrieved successfully",
-                blogService.getAllBlogs(pageable)));
+                blogService.getAllBlogs(pageable, currentUserId)));
     }
 
     @GetMapping("/published")
-    public ResponseEntity<ApiResponse> getPublishedBlogs(Pageable pageable) {
+    public ResponseEntity<ApiResponse> getPublishedBlogs(Pageable pageable, Authentication authentication) {
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            currentUserId = ((SecurityUser) authentication.getPrincipal()).getId();
+        }
+        
         return ResponseEntity.ok(new ApiResponse(true, "Published blogs retrieved successfully",
-                blogService.getPublishedBlogs(pageable)));
+                blogService.getPublishedBlogs(pageable, currentUserId)));
     }
 
     @GetMapping("/author/{authorId}")
@@ -118,23 +133,40 @@ public class BlogController {
     @GetMapping("/tag/{tag}")
     public ResponseEntity<ApiResponse> getBlogsByTag(
             @PathVariable String tag,
-            Pageable pageable) {
+            Pageable pageable,
+            Authentication authentication) {
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            currentUserId = ((SecurityUser) authentication.getPrincipal()).getId();
+        }
+        
         return ResponseEntity.ok(new ApiResponse(true, "Tagged blogs retrieved successfully",
-                blogService.getBlogsByTag(tag, pageable)));
+                blogService.getBlogsByTag(tag, pageable, currentUserId)));
     }
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchBlogs(
             @RequestParam String query,
-            Pageable pageable) {
+            Pageable pageable,
+            Authentication authentication) {
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            currentUserId = ((SecurityUser) authentication.getPrincipal()).getId();
+        }
+        
         return ResponseEntity.ok(new ApiResponse(true, "Search results retrieved successfully",
-                blogService.searchBlogs(query, pageable)));
+                blogService.searchBlogs(query, pageable, currentUserId)));
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<ApiResponse> getPopularBlogs(Pageable pageable) {
+    public ResponseEntity<ApiResponse> getPopularBlogs(Pageable pageable, Authentication authentication) {
+        UUID currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            currentUserId = ((SecurityUser) authentication.getPrincipal()).getId();
+        }
+        
         return ResponseEntity.ok(new ApiResponse(true, "Popular blogs retrieved successfully",
-                blogService.getMostPopularBlogs(pageable)));
+                blogService.getMostPopularBlogs(pageable, currentUserId)));
     }
 
     // Helper Methods
