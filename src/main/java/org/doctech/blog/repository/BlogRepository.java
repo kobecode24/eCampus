@@ -31,4 +31,7 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
     Page<Blog> search(String query, Pageable pageable);
 
     long countByAuthorId(UUID authorId);
+
+    @Query("SELECT b FROM Blog b LEFT JOIN b.comments c GROUP BY b.id ORDER BY COUNT(c) DESC")
+    Page<Blog> findAllOrderByCommentCountDesc(Pageable pageable);
 }
