@@ -14,6 +14,7 @@ import org.doctech.user.model.User;
 import org.doctech.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,22 +73,39 @@ public class BlogServiceImpl implements BlogService {
     // Blog Retrieval
     @Override
     @Transactional(readOnly = true)
-    public BlogDTO getBlogById(UUID id) {
-        return blogMapper.toDTO(findBlogByIdWithComments(id));
+    public BlogDTO getBlogById(UUID id, UUID currentUserId) {
+        Blog blog = findBlogByIdWithComments(id);
+        return enrichDTOWithLikeStatus(blog, currentUserId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BlogDTO> getAllBlogs(Pageable pageable) {
+    public Page<BlogDTO> getAllBlogs(Pageable pageable, UUID currentUserId) {
+        // Check if we're sorting by comments.size
+        if (pageable.getSort().stream()
+                .anyMatch(order -> order.getProperty().equals("comments.size"))) {
+            
+            // Create a new pageable without the sort
+            Pageable pageableWithoutSort = PageRequest.of(
+                pageable.getPageNumber(), 
+                pageable.getPageSize()
+            );
+            
+            // Use the custom query method for sorting by comment count
+            return blogRepository.findAllOrderByCommentCountDesc(pageableWithoutSort)
+                    .map(blog -> enrichDTOWithLikeStatus(blog, currentUserId));
+        }
+        
+        // Use the default method for other sorts
         return blogRepository.findAll(pageable)
-                .map(blogMapper::toDTO);
+                .map(blog -> enrichDTOWithLikeStatus(blog, currentUserId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BlogDTO> getPublishedBlogs(Pageable pageable) {
+    public Page<BlogDTO> getPublishedBlogs(Pageable pageable, UUID currentUserId) {
         return blogRepository.findByPublishedTrue(pageable)
-                .map(blogMapper::toDTO);
+                .map(blog -> enrichDTOWithLikeStatus(blog, currentUserId));
     }
 
     @Override
@@ -119,23 +137,23 @@ public class BlogServiceImpl implements BlogService {
     // Blog Search and Filtering
     @Override
     @Transactional(readOnly = true)
-    public Page<BlogDTO> getBlogsByTag(String tag, Pageable pageable) {
+    public Page<BlogDTO> getBlogsByTag(String tag, Pageable pageable, UUID currentUserId) {
         return blogRepository.findByTag(tag, pageable)
-                .map(blogMapper::toDTO);
+                .map(blog -> enrichDTOWithLikeStatus(blog, currentUserId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BlogDTO> searchBlogs(String query, Pageable pageable) {
+    public Page<BlogDTO> searchBlogs(String query, Pageable pageable, UUID currentUserId) {
         return blogRepository.search(query, pageable)
-                .map(blogMapper::toDTO);
+                .map(blog -> enrichDTOWithLikeStatus(blog, currentUserId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BlogDTO> getMostPopularBlogs(Pageable pageable) {
+    public Page<BlogDTO> getMostPopularBlogs(Pageable pageable, UUID currentUserId) {
         return blogRepository.findAllByOrderByLikesDesc(pageable)
-                .map(blogMapper::toDTO);
+                .map(blog -> enrichDTOWithLikeStatus(blog, currentUserId));
     }
 
     // Authorization
@@ -207,5 +225,20 @@ public class BlogServiceImpl implements BlogService {
         return blog.getAuthor().getId().equals(user.getId()) ||
                 user.getRoles().stream()
                         .anyMatch(role -> role.getName().equals("ADMIN"));
+    }
+
+    // Helper method to set hasLiked field
+    private BlogDTO enrichDTOWithLikeStatus(Blog blog, UUID userId) {
+        BlogDTO dto = blogMapper.toDTO(blog);
+        
+        if (userId != null) {
+            // Check if user has liked this blog using repository
+            boolean hasLiked = blogLikesRepository.existsByBlogIdAndUserId(blog.getId(), userId);
+            dto.setHasLiked(hasLiked);
+        } else {
+            dto.setHasLiked(false);
+        }
+        
+        return dto;
     }
 }

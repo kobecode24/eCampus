@@ -13,26 +13,26 @@ public interface BlogService {
 
     BlogDTO updateBlog(UUID id, BlogDTO blogDTO);
 
-    BlogDTO getBlogById(UUID id);
+    BlogDTO getBlogById(UUID id, UUID currentUserId);
 
-    Page<BlogDTO> getAllBlogs(Pageable pageable);
+    Page<BlogDTO> getAllBlogs(Pageable pageable, UUID currentUserId);
 
-    Page<BlogDTO> getPublishedBlogs(Pageable pageable);
+    Page<BlogDTO> getPublishedBlogs(Pageable pageable, UUID currentUserId);
 
     Page<BlogDTO> getBlogsByAuthor(UUID authorId, Pageable pageable);
 
     @Transactional
     BlogDTO toggleLike(UUID blogId, UUID userId);
 
-    Page<BlogDTO> getBlogsByTag(String tag, Pageable pageable);
+    Page<BlogDTO> getBlogsByTag(String tag, Pageable pageable, UUID currentUserId);
 
     BlogDTO publishBlog(UUID id);
 
-    Page<BlogDTO> getMostPopularBlogs(Pageable pageable);
+    Page<BlogDTO> getMostPopularBlogs(Pageable pageable, UUID currentUserId);
 
     void deleteBlog(UUID id);
 
-    Page<BlogDTO> searchBlogs(String query, Pageable pageable);
+    Page<BlogDTO> searchBlogs(String query, Pageable pageable, UUID currentUserId);
 
     boolean isAuthorOrAdmin(UUID blogId, Object principal);
 }
