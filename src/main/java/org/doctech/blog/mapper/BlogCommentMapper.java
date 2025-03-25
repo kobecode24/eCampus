@@ -14,6 +14,7 @@ public interface BlogCommentMapper {
     @Mapping(source = "blog.id", target = "blogId")
     @Mapping(source = "author.id", target = "authorId")
     @Mapping(source = "author.username", target = "authorUsername")
+    @Mapping(source = "author.avatar", target = "authorAvatarUrl")
     BlogCommentDTO toDTO(BlogComment comment);
 
     @Mapping(target = "blog", ignore = true)

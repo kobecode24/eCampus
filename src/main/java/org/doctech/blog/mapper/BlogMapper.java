@@ -12,6 +12,7 @@ public interface BlogMapper {
 
     @Mapping(source = "author.id", target = "authorId")
     @Mapping(source = "author.username", target = "authorUsername")
+    @Mapping(source = "author.avatar", target = "authorAvatarUrl")
     @Mapping(target = "likes", expression = "java(blog.getLikes())")
     @Mapping(source = "comments", target = "comments")
     @Mapping(target = "hasLiked", ignore = true)
