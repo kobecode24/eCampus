@@ -455,4 +455,11 @@ public class DocumentationServiceImpl implements DocumentationService {
         Page<DocumentationSection> sectionPage = sectionRepository.searchSections(query, pageable);
         return sectionPage.map(this::mapSectionToDTO);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DocumentationDTO> getDocumentationByStatus(DocumentationStatus status, Pageable pageable) {
+        return documentationRepository.findByStatusOrderByLastUpdatedAtDesc(status, pageable)
+                .map(documentationMapper::toDTO);
+    }
 }

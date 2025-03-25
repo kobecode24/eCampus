@@ -41,4 +41,5 @@ public interface DocumentationService {
     DocumentationSectionDTO getSectionById(UUID sectionId);
     Page<DocumentationSectionDTO> searchSections(String query, Pageable pageable);
     int getDocumentationReadingTime(UUID docId);
+    Page<DocumentationDTO> getDocumentationByStatus(DocumentationStatus status, Pageable pageable);
 }
