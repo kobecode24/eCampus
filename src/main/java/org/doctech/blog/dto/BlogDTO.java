@@ -29,6 +29,7 @@ public class BlogDTO {
 
     private UUID authorId;
     private String authorUsername;
+    private String authorAvatarUrl;
 
     @Builder.Default
     private Set<String> tags = new HashSet<>();

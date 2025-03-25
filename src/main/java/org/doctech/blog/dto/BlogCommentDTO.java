@@ -28,6 +28,8 @@ public class BlogCommentDTO {
 
     private String authorUsername;
 
+    private String authorAvatarUrl;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
