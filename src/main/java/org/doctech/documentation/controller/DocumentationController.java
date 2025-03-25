@@ -88,8 +88,27 @@ public class DocumentationController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllDocumentation(Pageable pageable) {
-        Page<DocumentationDTO> docs = documentationService.getAllDocumentation(pageable);
+    public ResponseEntity<ApiResponse> getAllDocumentation(Pageable pageable, Authentication authentication) {
+        // Get the authorities of the current user
+        boolean isAdminOrModerator = false;
+        
+        if (authentication != null) {
+            isAdminOrModerator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || 
+                               a.getAuthority().equals("ROLE_MODERATOR") ||
+                               a.getAuthority().equals("ROLE_INSTRUCTOR"));
+        }
+        
+        // Call appropriate service method based on role
+        Page<DocumentationDTO> docs;
+        if (isAdminOrModerator) {
+            // Admin/moderators see all docs
+            docs = documentationService.getAllDocumentation(pageable);
+        } else {
+            // Regular users only see published docs
+            docs = documentationService.getDocumentationByStatus(DocumentationStatus.PUBLISHED, pageable);
+        }
+        
         PagedResponse<DocumentationDTO> response = PagedResponse.of(docs.getContent(), docs);
         return ResponseEntity.ok(new ApiResponse(true, "Documentation list retrieved successfully", response));
     }
