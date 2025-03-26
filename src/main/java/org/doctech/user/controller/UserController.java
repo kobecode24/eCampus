@@ -73,25 +73,48 @@ public class UserController {
         System.out.println("Servlet Path: " + servletRequest.getServletPath());
         System.out.println("Username: " + request.getUsername());
         
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        userService.updateLastLogin(securityUser.getId());
+        // First check if user is enabled
+        try {
+            // Check if the user exists and is enabled
+            UserDTO userDTO = null;
+            try {
+                // Try to find by username first
+                userDTO = userService.getUserByUsername(request.getUsername());
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            
+            // If user was found, check if enabled
+            if (userDTO != null && !userDTO.isEnabled()) {
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                        .body(new ApiResponse(false, "Account is disabled. Please contact an administrator.", null));
+            }
+            
+            // Proceed with authentication
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+            
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            userService.updateLastLogin(securityUser.getId());
 
-        String token = tokenProvider.generateToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+            String token = tokenProvider.generateToken(authentication);
+            String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
-        response.put("refreshToken", refreshToken);
-        response.put("tokenType", "Bearer");
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("refreshToken", refreshToken);
+            response.put("tokenType", "Bearer");
 
-        return ResponseEntity.ok(new ApiResponse(true, "Login successful", response));
+            return ResponseEntity.ok(new ApiResponse(true, "Login successful", response));
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Authentication failed: " + e.getMessage(), null));
+        }
     }
 
     @GetMapping("/me")
