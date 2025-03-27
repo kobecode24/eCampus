@@ -28,7 +28,7 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 FROM eclipse-temurin:17-jre-alpine
 
 # Set environment variables
-ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_PROFILES_ACTIVE=dev
 
 # Create a volume for temporary files
 VOLUME /tmp

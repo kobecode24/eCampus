@@ -9,6 +9,7 @@ import org.doctech.config.JwtConfig;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private static final String[] PUBLIC_URLS = {
             "/users/register",
@@ -28,7 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/users/refresh",
             "/auth/**",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**"
     };
 
     @Override
@@ -41,7 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
 
         try {
             String jwt = getJwtFromRequest(request);
@@ -79,9 +83,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicUrl(String path) {
-        boolean isPublic = Arrays.stream(PUBLIC_URLS)
-                .anyMatch(path::startsWith);
-        return isPublic;
+        return Arrays.stream(PUBLIC_URLS)
+                .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

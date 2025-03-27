@@ -54,12 +54,15 @@ public class SecurityConfig {
                         .requestMatchers("/users/auth/debug").authenticated()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
                         .anyRequest().authenticated())
-                .exceptionHandling(exceptions -> 
+                .exceptionHandling(exceptions ->
                     exceptions.authenticationEntryPoint((request, response, authException) -> {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json");
-                        response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"" 
+                        response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\""
                             + authException.getMessage() + "\", \"path\":\"" + request.getRequestURI() + "\"}");
                     })
                 )

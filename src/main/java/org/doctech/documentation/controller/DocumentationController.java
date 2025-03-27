@@ -95,8 +95,7 @@ public class DocumentationController {
         if (authentication != null) {
             isAdminOrModerator = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || 
-                               a.getAuthority().equals("ROLE_MODERATOR") ||
-                               a.getAuthority().equals("ROLE_INSTRUCTOR"));
+                               a.getAuthority().equals("ROLE_MODERATOR"));
         }
         
         // Call appropriate service method based on role
