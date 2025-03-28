@@ -21,17 +21,11 @@ classDiagram
         +UUID id
         +String title
         +String content
-        +Set~String~ tags
         +Integer likes
         +Integer pointsCost
         +boolean published
         +LocalDateTime publishedAt
         +LocalDateTime createdAt
-        +publish()
-        +unpublish()
-        +toggleLike(User)
-        +addComment(BlogComment)
-        +removeComment(BlogComment)
     }
 
     class BlogComment {
@@ -46,13 +40,11 @@ classDiagram
         +UUID id
         +String title
         +String content
-        +Set~String~ tags
         +Integer views
         +TechnologyType technology
         +DocumentationStatus status
         +LocalDateTime createdAt
         +LocalDateTime lastUpdatedAt
-        +incrementViews()
     }
 
     class DocumentationSection {
